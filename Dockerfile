@@ -17,4 +17,4 @@ RUN apt-get update && apt-get install -y dos2unix && \
     dos2unix /candy_store_tg_bot/docker/*.sh && \
     chmod a+x /candy_store_tg_bot/docker/*.sh
 
-CMD ["poetry", "run", "bash", "-c", "python bot/main.py"]
+CMD ["poetry", "run", "/bin/bash", "-c", "python bot/main.py"]
