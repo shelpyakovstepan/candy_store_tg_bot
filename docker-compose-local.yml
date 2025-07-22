@@ -1,0 +1,17 @@
+services:
+  candy_store_tg_bot:
+    image: candy_store_tg_bot_image:latest
+    build:
+      context: .
+    container_name: candy_store_tg_bot_container
+    env_file:
+      - .env-non-dev
+    restart: always
+    command:
+      [ "bash", "/candy_store_tg_bot/docker/bot.sh" ]
+    networks:
+      - rabbitmq_network  # Подключаемся к той же сети
+
+networks:
+  rabbitmq_network:
+    external: true  # Используем существующую сеть

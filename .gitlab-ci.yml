@@ -1,16 +1,63 @@
-# You can override the included template(s) by including variable overrides
-# SAST customization: https://docs.gitlab.com/ee/user/application_security/sast/#customizing-the-sast-settings
-# Secret Detection customization: https://docs.gitlab.com/user/application_security/secret_detection/pipeline/configure
-# Dependency Scanning customization: https://docs.gitlab.com/ee/user/application_security/dependency_scanning/#customizing-the-dependency-scanning-settings
-# Container Scanning customization: https://docs.gitlab.com/ee/user/application_security/container_scanning/#customizing-the-container-scanning-settings
-# Note that environment variables can be set in several places
-# See https://docs.gitlab.com/ee/ci/variables/#cicd-variable-precedence
 stages:
-- test
-- secret-detection
-variables:
-  SECRET_DETECTION_ENABLED: 'true'
-secret_detection:
-  stage: secret-detection
-include:
-- template: Security/Secret-Detection.gitlab-ci.yml
+  - build
+  - run
+  - lint
+  - cleanup
+  - deploy
+
+build-job:
+  stage: build
+  environment:
+    name: dev
+  script:
+    - docker compose -f docker-compose.yml build
+
+run-job:
+  stage: run
+  environment:
+    name: dev
+  needs: [build-job]
+  script:
+    - docker compose -f docker-compose.yml up -d
+
+lint-test-job:
+  stage: lint
+  environment:
+    name: dev
+  needs: [run-job]
+  script:
+    - echo "Проверка форматирования кода с помощью ruff..."
+    - docker compose exec -it candy_store_tg_bot ruff format --config ruff.toml --check bot
+
+    - echo "Проверка типов с помощью pyright..."
+    - docker compose exec -it candy_store_tg_bot pyright bot
+
+    - echo "Проверка стиля кода с помощью ruff..."
+    - docker compose exec -it candy_store_tg_bot ruff check --config ruff.toml bot
+
+    - echo "Проверка сортировки импортов с помощью isort..."
+    - docker compose exec -it candy_store_tg_bot isort --check-only --diff bot
+
+
+cleanup-job:
+  stage: cleanup
+  environment:
+    name: dev
+  needs: [run-job, lint-test-job]
+  script:
+    - docker compose -f docker-compose.yml down
+    - docker container prune -f
+    - docker volume prune -f
+    - docker system prune -f
+  when: always
+
+
+deploy-job:
+  stage: deploy
+  environment:
+    name: dev
+  needs: [test-job]
+  script:
+    - docker compose -f docker-compose.yml build
+    - docker compose -f docker-compose.yml up -d
+  when: manual
