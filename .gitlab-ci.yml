@@ -56,7 +56,7 @@ deploy-job:
   stage: deploy
   environment:
     name: dev
-  needs: [test-job]
+  needs: [lint-test-job]
   script:
     - docker compose -f docker-compose.yml build
     - docker compose -f docker-compose.yml up -d
