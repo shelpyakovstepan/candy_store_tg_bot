@@ -14,6 +14,7 @@ from bot.logger import logger
 from bot.rabbitmq.broker import (
     connect_broker,
     disconnect_broker,
+    phone_number_queue,
     send_message_for_candy_store,
 )
 
@@ -72,7 +73,7 @@ async def handle_contact(message: types.Message):
     )
     await send_message_for_candy_store(
         message={"phone_number": phone_number, "chat_id": message.chat.id},
-        queue="phone-number-queue",
+        queue=phone_number_queue,
     )
 
 

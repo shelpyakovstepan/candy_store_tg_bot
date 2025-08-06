@@ -5,7 +5,12 @@ from faststream import FastStream
 from bot.config import get_rabbitmq_url, settings
 from bot.logger import logger
 from bot.main import send_message
-from bot.rabbitmq.broker import broker, rabbitmq_connection
+from bot.rabbitmq.broker import (
+    admin_queue,
+    broker,
+    messages_queue,
+    rabbitmq_connection,
+)
 
 conn_url = get_rabbitmq_url()
 
@@ -17,7 +22,7 @@ else:
     raise ConnectionError("RabbitMQ connection failed")
 
 
-@broker.subscriber("messages-queue")
+@broker.subscriber(messages_queue)
 async def handler_send_message_for_user(message):
     """
     Слушает RabbitMQ очередь: messages-queue и выполняет функцию send_message() при получении сообщения.
@@ -26,7 +31,7 @@ async def handler_send_message_for_user(message):
     await send_message(chat_id=message["chat_id"], text=message["text"])
 
 
-@broker.subscriber("admin-queue")
+@broker.subscriber(admin_queue)
 async def handler_send_message_for_admin(message):
     """
     Слушает RabbitMQ очередь: admin-queue и выполняет функцию send_message() при получении сообщения.
