@@ -24,6 +24,12 @@ settings = Settings()  # pyright: ignore [reportCallIssue]
 
 
 def get_rabbitmq_url():
+    """
+    Отдаёт ссылку на подключение к RabbitMQ.
+
+    Returns:
+        Ссылка на подключение к RabbitMQ.
+    """
     return (
         f"amqp://{settings.RABBIT_USER}:{settings.RABBIT_PASS}@"
         f"{settings.RABBIT_HOST}:{settings.RABBIT_PORT}/"

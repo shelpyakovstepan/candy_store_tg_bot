@@ -7,10 +7,18 @@ services:
     env_file:
       - .env-non-dev
     restart: always
-    command:
-      [ "bash", "/candy_store_tg_bot/docker/bot.sh" ]
     networks:
-      - rabbitmq_network  # Подключаемся к той же сети
+      - rabbitmq_network
+
+  faststream:
+    build:
+      context: .
+    env_file:
+      - .env-non-dev
+    entrypoint:
+      [ "bash", "/candy_store_tg_bot/docker/faststream.sh" ]
+    networks:
+      - rabbitmq_network
 
 networks:
   rabbitmq_network:
