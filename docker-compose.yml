@@ -14,8 +14,6 @@ services:
 
       ADMIN_ID: "${ADMIN_ID}"
     restart: always
-    command:
-      [ "bash", "/candy_store_tg_bot/docker/bot.sh" ]
     networks:
       - rabbitmq_network
 
