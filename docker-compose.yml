@@ -14,10 +14,26 @@ services:
 
       ADMIN_ID: "${ADMIN_ID}"
     restart: always
-    command:
-      [ "bash", "/candy_store_tg_bot/docker/bot.sh" ]
     networks:
       - rabbitmq_network
+
+  faststream:
+    build:
+      context: .
+    environment:
+      BOT_TOKEN: "${BOT_TOKEN}"
+
+      RABBIT_USER: "${RABBIT_USER}"
+      RABBIT_PASS: "${RABBIT_PASS}"
+      RABBIT_HOST: "${RABBIT_HOST}"
+      RABBIT_PORT: "${RABBIT_PORT}"
+
+      ADMIN_ID: "${ADMIN_ID}"
+    entrypoint:
+      [ "bash", "/candy_store_tg_bot/docker/faststream.sh" ]
+    networks:
+      - rabbitmq_network
+
 
 networks:
   rabbitmq_network:
